@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Add Health Record - Smart Health Monitoring{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <h2>Add Health Record</h2>
+    <p style="color: #555; margin-bottom: 25px; text-align: center;">
+        Enter your daily health measurements below. All fields help improve prediction accuracy.
+    </p>
+
+    <form method="POST" class="health-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="message error" style="margin-bottom: 20px;">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                
+                {{ field }}
+                
+                {% if field.errors %}
+                    <div class="field-error">
+                        {{ field.errors }}
+                    </div>
+                {% endif %}
+                
+                {% if field.help_text %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Save Record</button>
+    </form>
+
+    <p style="margin-top: 25px; text-align: center; color: #555;">
+        <a href="{% url 'health_records' %}">← Back to Health Records</a>
+    </p>
+</div>
+
+<style>
+    /* Form Container - matches register style */
+    .form-container {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        padding: 35px;
+        max-width: 500px;
+        width: 100%;
+        margin: 40px auto;
+    }
+
+    h2 {
+        color: #2c3e50;
+        font-size: 1.9em;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    /* Form Layout */
+    .health-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #34495e;
+        font-size: 1.05em;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+        box-sizing: border-box;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        outline: none;
+    }
+
+    /* Error Messages */
+    .field-error {
+        color: #c62828;
+        font-size: 0.9em;
+        margin-top: 6px;
+    }
+
+    .help-text {
+        color: #7f8c8d;
+        font-size: 0.85em;
+        margin-top: 5px;
+    }
+
+    /* Submit Button - consistent with register */
+    .btn {
+        display: block;
+        width: 100%;
+        padding: 13px;
+        border: none;
+        border-radius: 8px;
+        background-color: #3498db;
+        color: white;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 15px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    /* Back link */
+    a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+        .form-container {
+            padding: 25px;
+            margin: 20px 15px;
+        }
+    }
+</style>
+
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+{% block title %}Your Health Records - Smart Health Monitoring{% endblock %}
+
+{% block content %}
+
+<div class="records-container">
+
+    <h2>Your Health Records</h2>
+
+    <!-- Date Filter Form -->
+    <div class="card filter-card">
+        <h4 class="card-title">Filter Records by Date</h4>
+        <form method="get" class="date-filter-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ date_form.start_date.id_for_label }}">From</label>
+                    {{ date_form.start_date }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ date_form.end_date.id_for_label }}">To</label>
+                    {{ date_form.end_date }}
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Apply Filter</button>
+                    <a href="{% url 'health_records' %}" class="btn btn-secondary">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="action-bar card">
+        <a href="{% url 'add_health_record' %}" class="btn btn-success">+ Add New Record</a>
+        <a href="{% url 'upload_data' %}" class="btn btn-primary">Upload CSV/Excel</a>
+        <a href="{% url 'export_csv' %}?{{ request.GET.urlencode }}" class="btn btn-info">Export CSV</a>
+        <a href="{% url 'export_excel' %}?{{ request.GET.urlencode }}" class="btn btn-info">Export Excel</a>
+        <a href="{% url 'download_report' 'custom' %}?{{ request.GET.urlencode }}" class="btn btn-warning">Download PDF Report</a>
+    </div>
+
+    <!-- Health Insights -->
+    {% if insights %}
+    <div class="card insights-card">
+        <h3>Current Health Insights</h3>
+        <div class="insights-grid">
+            <div class="insight-item">
+                <strong>Weight Risk:</strong>
+                <span class="risk-level {{ insights.weight_risk|lower|default:'low' }}">{{ insights.weight_risk|default:"N/A" }}</span>
+            </div>
+            <div class="insight-item">
+                <strong>Sugar Risk:</strong>
+                <span class="risk-level {{ insights.sugar_risk|lower|default:'low' }}">{{ insights.sugar_risk|default:"N/A" }}</span>
+            </div>
+            <div class="insight-item">
+                <strong>Blood Pressure Risk:</strong>
+                <span class="risk-level {{ insights.bp_risk|lower|default:'low' }}">{{ insights.bp_risk|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        {% if insights.anomalies %}
+        <div class="alert-section">
+            <h4>Anomalies Detected</h4>
+            <ul class="alert-list">
+                {% for a in insights.anomalies %}
+                <li class="alert-item">{{ a }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if insights.recommendations %}
+        <div class="recommendations-section">
+            <h4>Recommendations</h4>
+            <ul class="recommendation-list">
+                {% for r in insights.recommendations %}
+                <li>{{ r }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Trends Chart -->
+    {% if chart %}
+    <div class="card chart-card">
+        <h3>Health Trends Overview</h3>
+        <div class="chart-container">
+            {{ chart|safe }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Records Table -->
+    <div class="card table-card">
+        <h3>All Records</h3>
+        <div class="table-responsive">
+            <table class="records-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Weight (kg)</th>
+                        <th>Blood Pressure</th>
+                        <th>Sugar (mg/dL)</th>
+                        <th>Sleep (hrs)</th>
+                        <th>Exercise (min)</th>
+                        <th>Mood</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for r in records %}
+                    <tr>
+                        <td>{{ r.date|date:"Y-m-d" }}</td>
+                        <td>{{ r.weight|default:"—" }}</td>
+                        <td>{{ r.systolic_bp|default:"—" }} / {{ r.diastolic_bp|default:"—" }}</td>
+                        <td>{{ r.sugar_level|default:"—" }}</td>
+                        <td>{{ r.sleep_hours|default:"—" }}</td>
+                        <td>{{ r.exercise_minutes|default:"—" }}</td>
+                        <td>{{ r.mood|default:"—" }}</td>
+                        <td class="actions">
+                            <a href="{% url 'edit_health_record' r.id %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'delete_health_record' r.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this record?')">Delete</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center empty-message">
+                            No health records found for the selected period.<br>
+                            <a href="{% url 'add_health_record' %}">Add your first record now</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .records-container {
+        padding: 20px 0;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+        padding: 25px;
+    }
+
+    .card-title, h3, h4 {
+        color: #2c3e50;
+        margin-bottom: 15px;
+    }
+
+    /* Filter Form */
+    .filter-card {
+        padding: 20px;
+    }
+
+    .date-filter-form .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: flex-end;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 160px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #34495e;
+    }
+
+    .form-group input[type="date"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1em;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    /* Action Bar */
+    .action-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 18px;
+    }
+
+    .action-bar .btn {
+        flex: 1 1 auto;
+        min-width: 140px;
+        text-align: center;
+    }
+
+    /* Insights */
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+
+    .insight-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .risk-level {
+        font-size: 1.25rem;
+        font-weight: bold;
+        padding: 6px 12px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-top: 8px;
+    }
+
+    .risk-level.low    { background: #27ae60; color: white; }
+    .risk-level.medium { background: #f39c12; color: white; }
+    .risk-level.high   { background: #c0392b; color: white; }
+
+    .alert-list, .recommendation-list {
+        padding-left: 20px;
+        margin: 10px 0;
+    }
+
+    .alert-item {
+        color: #c0392b;
+        margin-bottom: 8px;
+    }
+
+    /* Chart */
+    .chart-container {
+        min-height: 300px;
+    }
+
+    /* Table */
+    .records-table {
+        width: 100%;
+        border:2px solid black;
+    }
+
+    .records-table th,
+    .records-table td {
+        padding: 14px 12px;
+        text-align: center;
+        border:2px solid black;
+
+        border-bottom: 1px solid #eee;
+    }
+
+    .records-table th {
+        background: #3498db;
+        color: white;
+        font-weight: 600;
+    }
+
+    .records-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .actions .btn {
+        margin: 0 4px;
+        padding: 6px 12px;
+        font-size: 0.9em;
+    }
+
+    .empty-message {
+        padding: 40px 20px;
+        color: #7f8c8d;
+        font-style: italic;
+    }
+
+    .empty-message a {
+        color: #3498db;
+        font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+        .date-filter-form .form-row {
+            flex-direction: column;
+        }
+        .action-bar {
+            flex-direction: column;
+        }
+        .action-bar .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{% endblock %}

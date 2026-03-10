@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Smart Health Monitoring{% endblock %}
+
+{% block content %}
+
+<div class="dashboard-container" style="padding: 20px 0;">
+
+    <!-- Welcome / Quick Overview -->
+    <div class="card" style="background: linear-gradient(135deg, #3498db, #2980b9); color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+        <h2>Welcome back, <span style="font-weight: 700;">{{ username }}</span>!</h2>
+        <p>Here's your latest health overview. Stay proactive about your well-being.</p>
+    </div>
+
+    <!-- AI Health Risk Analysis -->
+    <h3 class="section-title" style="color: #2c3e50; margin: 2.5rem 0 1.2rem; font-size: 1.6rem; border-bottom: 3px solid #3498db; padding-bottom: 8px; display: inline-block;">
+        AI Health Risk Analysis
+    </h3>
+
+    <div class="card">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+            
+            <div>
+                <strong>Diabetes Risk:</strong><br>
+                <span class="risk-level {% if diabetes_prediction %}high{% else %}low{% endif %}">
+                    {% if diabetes_prediction %}High{% else %}Low{% endif %}
+                </span>
+            </div>
+
+            <div>
+                <strong>Hypertension Risk:</strong><br>
+                <span class="risk-level {% if hypertension_prediction %}high{% else %}low{% endif %}">
+                    {% if hypertension_prediction %}High{% else %}Low{% endif %}
+                </span>
+            </div>
+
+            <div>
+                <strong>Weight Risk:</strong><br>
+                <span class="risk-level {{ weight_risk|lower }}">{{ weight_risk|default:"N/A" }}</span>
+            </div>
+
+            <div>
+                <strong>Sugar Level Risk:</strong><br>
+                <span class="risk-level {{ sugar_risk|lower }}">{{ sugar_risk|default:"N/A" }}</span>
+            </div>
+
+            <div>
+                <strong>Blood Pressure Risk:</strong><br>
+                <span class="risk-level {{ bp_risk|lower }}">{{ bp_risk|default:"N/A" }}</span>
+            </div>
+        </div>
+
+        <p style="margin-top: 1.5rem; font-size: 0.95rem; color: #555;">
+            Risk levels are calculated based on your recent entries and predictive models.
+            {% if latest_entry_date %}
+                Last updated: {{ latest_entry_date }}
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Health Alerts -->
+    <h3 class="section-title" style="color: #2c3e50; margin: 2.5rem 0 1.2rem; font-size: 1.6rem; border-bottom: 3px solid #e74c3c; padding-bottom: 8px; display: inline-block;">
+        Health Alerts
+    </h3>
+
+    <div class="card">
+        {% if anomalies %}
+            <ul style="margin: 0; padding-left: 1.5rem; list-style-type: none;">
+                {% for alert in anomalies %}
+                    <li style="margin-bottom: 0.8rem; color: #c0392b; font-weight: 500;">
+                        ⚠️ {{ alert }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #27ae60; font-weight: 500; margin: 0;">
+                ✓ No abnormal readings detected in recent data.
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Personalized Recommendations -->
+    <h3 class="section-title" style="color: #2c3e50; margin: 2.5rem 0 1.2rem; font-size: 1.6rem; border-bottom: 3px solid #2ecc71; padding-bottom: 8px; display: inline-block;">
+        Personalized Recommendations
+    </h3>
+
+    <div class="card">
+        {% if recommendations %}
+            <ul style="margin: 0; padding-left: 1.5rem;">
+                {% for r in recommendations %}
+                    <li style="margin-bottom: 0.9rem;">{{ r }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #7f8c8d; font-style: italic;">
+                No specific recommendations yet. Keep adding your daily health data!
+            </p>
+        {% endif %}
+    </div>
+
+    <!-- Health Trends / Charts -->
+    <h3 class="section-title" style="color: #2c3e50; margin: 2.5rem 0 1.2rem; font-size: 1.6rem; border-bottom: 3px solid #3498db; padding-bottom: 8px; display: inline-block;">
+        Health Trends
+    </h3>
+
+    <div class="card" style="padding: 1.5rem;">
+        {% if chart %}
+            <div style="min-height: 320px;">
+                {{ chart|safe }}
+            </div>
+        {% else %}
+            <p style="text-align: center; color: #95a5a6; padding: 3rem 0; font-style: italic;">
+                No trend data available yet.<br>
+                Add more health records to see visualizations.
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+
+<style>
+    /* Dashboard-specific overrides / additions – keeps compatibility with base.html */
+    .risk-level {
+        font-size: 1.3rem;
+        font-weight: 700;
+        padding: 0.35rem 0.8rem;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    .risk-level.low    { background: #27ae60; color: white; }
+    .risk-level.medium { background: #f39c12; color: white; }
+    .risk-level.high   { background: #c0392b; color: white; }
+
+    .section-title {
+        font-weight: 700;
+    }
+
+    .card {
+        transition: box-shadow 0.25s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 15px;
+        }
+        .risk-level {
+            font-size: 1.15rem;
+            padding: 0.3rem 0.7rem;
+        }
+    }
+</style>
+
+{% endblock %}

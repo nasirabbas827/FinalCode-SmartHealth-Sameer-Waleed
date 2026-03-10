@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Upload Health Data - Smart Health Monitoring{% endblock %}
+
+{% block content %}
+
+<div class="upload-container">
+    <div class="card upload-card">
+        <h2>Upload Health Data</h2>
+        
+        <p class="intro-text">
+            Import your health records in bulk using a CSV or Excel file.<br>
+            <small>Supported formats: .csv, .xlsx</small>
+        </p>
+
+        <div class="file-format-info">
+            <p><strong>Expected columns (case-insensitive):</strong></p>
+            <ul>
+                <li>date (YYYY-MM-DD)</li>
+                <li>weight</li>
+                <li>systolic_bp</li>
+                <li>diastolic_bp</li>
+                <li>sugar_level</li>
+                <li>sleep_hours</li>
+                <li>exercise_minutes</li>
+                <li>mood (optional)</li>
+            </ul>
+            <p class="note">First row should contain headers. Invalid rows will be skipped.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="message {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-group file-input-group">
+                <label for="file">Select File</label>
+                <input type="file" name="file" id="file" accept=".csv,.xlsx" required>
+                <small class="file-hint">Maximum file size: 5MB recommended</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Upload File</button>
+        </form>
+
+        <div class="back-link">
+            <a href="{% url 'health_records' %}">← Back to Health Records</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .upload-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .upload-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        padding: 35px;
+        max-width: 520px;
+        width: 100%;
+    }
+
+    h2 {
+        color: #2c3e50;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .intro-text {
+        text-align: center;
+        color: #555;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .intro-text small {
+        color: #7f8c8d;
+    }
+
+    .file-format-info {
+        background: #f8f9fa;
+        padding: 18px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+
+    .file-format-info p {
+        margin: 0 0 12px;
+        font-weight: 600;
+        color: #34495e;
+    }
+
+    .file-format-info ul {
+        margin: 8px 0 12px 20px;
+        padding-left: 0;
+        list-style-type: disc;
+        color: #555;
+    }
+
+    .file-format-info .note {
+        font-style: italic;
+        color: #7f8c8d;
+        margin-top: 15px;
+    }
+
+    .upload-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group.file-input-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 10px;
+    }
+
+    input[type="file"] {
+        padding: 10px;
+        border: 2px dashed #cbd5e1;
+        border-radius: 8px;
+        background: #f9fafb;
+        cursor: pointer;
+        transition: border-color 0.3s;
+    }
+
+    input[type="file"]:hover,
+    input[type="file"]:focus {
+        border-color: #3498db;
+        outline: none;
+    }
+
+    .file-hint {
+        margin-top: 8px;
+        color: #95a5a6;
+        font-size: 0.9em;
+    }
+
+    .btn-primary {
+        padding: 14px;
+        font-size: 1.1em;
+        font-weight: 600;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 25px;
+    }
+
+    .back-link a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link a:hover {
+        color: #2980b9;
+        text-decoration: underline;
+    }
+
+    @media (max-width: 576px) {
+        .upload-card {
+            padding: 25px;
+        }
+    }
+</style>
+
+{% endblock %}
